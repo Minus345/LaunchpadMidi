@@ -17,11 +17,11 @@ def updateFirstColumWithPercentage(percentage, flash, switchOn, colum):
     if switchOn[channel]:
         button[channel][0] = 45
         color = 9
-        outputToSoftware.send(mido.Message('note_on', note=1, velocity=127, channel=0))
+        outputToSoftware.send(mido.Message('note_on', note=colum + 1, velocity=127, channel=0))
     else:
         button[channel][0] = 0
         color = 5
-        outputToSoftware.send(mido.Message('note_off', note=1, velocity=127, channel=0))
+        outputToSoftware.send(mido.Message('note_off', note=colum + 1, velocity=127, channel=0))
 
     match percentage[channel]:
         case 0:
@@ -65,15 +65,15 @@ def updateFirstColumWithPercentage(percentage, flash, switchOn, colum):
 def sendMidiFirstColum(percentage, colum):
     match percentage[colum]:
         case 0:
-            outputToSoftware.send(mido.Message('control_change', channel=colum, control=colum + 1, value=0))
+            outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=0))
         case 25:
-            outputToSoftware.send(mido.Message('control_change', channel=colum, control=colum + 1, value=16))
+            outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=16))
         case 50:
-            outputToSoftware.send(mido.Message('control_change', channel=colum, control=colum + 1, value=32))
+            outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=32))
         case 75:
-            outputToSoftware.send(mido.Message('control_change', channel=colum, control=colum + 1, value=48))
+            outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=48))
         case 100:
-            outputToSoftware.send(mido.Message('control_change', channel=colum, control=colum + 1, value=64))
+            outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=64))
 
 
 if __name__ == '__main__':
