@@ -2,7 +2,7 @@ import mido
 
 
 def updateFirstColum():
-    outputLounchPad.send(mido.Message('note_on', note=11, velocity=button1[0], channel=0))
+    outputLounchPad.send(mido.Message('note_on', note=11, velocity=button1[0], channel=2))
     outputLounchPad.send(mido.Message('note_on', note=21, velocity=button1[1], channel=0))
 
     outputLounchPad.send(mido.Message('note_on', note=41, velocity=faders1[0], channel=0))
@@ -12,38 +12,47 @@ def updateFirstColum():
     outputLounchPad.send(mido.Message('note_on', note=81, velocity=faders1[4], channel=0))
 
 
-def updateFirstColumWithPercentage(percentage, flash):
+def updateFirstColumWithPercentage(percentage, flash, switchOn):
+    if switchOn:
+        button1[0] = 45
+        color = 9
+        outputToSoftware.send(mido.Message('note_on', note=1, velocity=127, channel=0))
+    else:
+        button1[0] = 0
+        color = 5
+        outputToSoftware.send(mido.Message('note_off', note=1, velocity=127, channel=0))
+
     match percentage:
         case 0:
             faders1[4] = 0
             faders1[3] = 0
             faders1[2] = 0
             faders1[1] = 0
-            faders1[0] = 9
+            faders1[0] = color
         case 25:
             faders1[4] = 0
             faders1[3] = 0
             faders1[2] = 0
-            faders1[1] = 9
-            faders1[0] = 9
+            faders1[1] = color
+            faders1[0] = color
         case 50:
             faders1[4] = 0
             faders1[3] = 0
-            faders1[2] = 9
-            faders1[1] = 9
-            faders1[0] = 9
+            faders1[2] = color
+            faders1[1] = color
+            faders1[0] = color
         case 75:
             faders1[4] = 0
-            faders1[3] = 9
-            faders1[2] = 9
-            faders1[1] = 9
-            faders1[0] = 9
+            faders1[3] = color
+            faders1[2] = color
+            faders1[1] = color
+            faders1[0] = color
         case 100:
-            faders1[4] = 9
-            faders1[3] = 9
-            faders1[2] = 9
-            faders1[1] = 9
-            faders1[0] = 9
+            faders1[4] = color
+            faders1[3] = color
+            faders1[2] = color
+            faders1[1] = color
+            faders1[0] = color
 
     if flash:
         button1[1] = 21
@@ -77,19 +86,26 @@ if __name__ == '__main__':
     inputFromSoftware = mido.open_input('midi 0')
 
     faders1 = [0, 0, 0, 0, 0]
-    button1 = [45, 45]
+    button1 = [0, 45]
     updateFirstColum()
 
     percentage = 0
     flash = False
+    switchOn = False
 
     while True:
         msg = inportLounchPad.receive()
+
+        if msg == mido.Message("note_on", note=11, velocity=127, channel=0):
+            if not switchOn:
+                switchOn = True
+            else:
+                switchOn = False
         if msg == mido.Message("note_on", note=21, velocity=127, channel=0):  # flash
             savePercentage = percentage
             percentage = 100
             flash = True
-        else:
+        if msg == mido.Message("note_on", note=21, velocity=0, channel=0):
             if flash:
                 percentage = savePercentage
                 flash = False
@@ -105,7 +121,7 @@ if __name__ == '__main__':
         if msg == mido.Message("note_on", note=81, velocity=127, channel=0):
             percentage = 100
 
-        updateFirstColumWithPercentage(percentage, flash)
+        updateFirstColumWithPercentage(percentage, flash, switchOn)
         sendMidiFirstColum(percentage)
         print(msg)
         print(percentage)
