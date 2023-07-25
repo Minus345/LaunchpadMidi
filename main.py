@@ -104,32 +104,33 @@ if __name__ == '__main__':
     while True:
         msg = inportLounchPad.receive()
 
-        for colum in range(8):
+        if msg:
+            for colum in range(8):
 
-            if msg == mido.Message("note_on", note=notes[colum][0], velocity=127, channel=0):
-                if not switchOn[colum]:
-                    switchOn[colum] = True
-                else:
-                    switchOn[colum] = False
-            if msg == mido.Message("note_on", note=notes[colum][1], velocity=127, channel=0):  # flash
-                savePercentage[colum] = percentage[colum]
-                percentage[colum] = 100
-                flash[colum] = True
-            if msg == mido.Message("note_on", note=notes[colum][1], velocity=0, channel=0):
-                if flash[colum]:
-                    percentage[colum] = savePercentage[colum]
-                    flash[colum] = False
+                if msg == mido.Message("note_on", note=notes[colum][0], velocity=127, channel=0):
+                    if not switchOn[colum]:
+                        switchOn[colum] = True
+                    else:
+                        switchOn[colum] = False
+                if msg == mido.Message("note_on", note=notes[colum][1], velocity=127, channel=0):  # flash
+                    savePercentage[colum] = percentage[colum]
+                    percentage[colum] = 100
+                    flash[colum] = True
+                if msg == mido.Message("note_on", note=notes[colum][1], velocity=0, channel=0):
+                    if flash[colum]:
+                        percentage[colum] = savePercentage[colum]
+                        flash[colum] = False
 
-            if msg == mido.Message("note_on", note=notes[colum][3], velocity=127, channel=0):
-                percentage[colum] = 0
-            if msg == mido.Message("note_on", note=notes[colum][4], velocity=127, channel=0):
-                percentage[colum] = 25
-            if msg == mido.Message("note_on", note=notes[colum][5], velocity=127, channel=0):
-                percentage[colum] = 50
-            if msg == mido.Message("note_on", note=notes[colum][6], velocity=127, channel=0):
-                percentage[colum] = 75
-            if msg == mido.Message("note_on", note=notes[colum][7], velocity=127, channel=0):
-                percentage[colum] = 100
+                if msg == mido.Message("note_on", note=notes[colum][3], velocity=127, channel=0):
+                    percentage[colum] = 0
+                if msg == mido.Message("note_on", note=notes[colum][4], velocity=127, channel=0):
+                    percentage[colum] = 25
+                if msg == mido.Message("note_on", note=notes[colum][5], velocity=127, channel=0):
+                    percentage[colum] = 50
+                if msg == mido.Message("note_on", note=notes[colum][6], velocity=127, channel=0):
+                    percentage[colum] = 75
+                if msg == mido.Message("note_on", note=notes[colum][7], velocity=127, channel=0):
+                    percentage[colum] = 100
 
-            updateFirstColumWithPercentage(percentage, flash, switchOn, colum)
-            sendMidiFirstColum(percentage, colum)
+                updateFirstColumWithPercentage(percentage, flash, switchOn, colum)
+                sendMidiFirstColum(percentage, colum)
