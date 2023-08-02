@@ -84,8 +84,17 @@ class App:
         DisplayHeight8 = tk.Label(root, text="Strobe", font=ft)
         DisplayHeight8.place(x=x, y=0 + 7 * height, width=width, height=height)
 
-        w = Scale(root, from_=100, to=0, width=50, )
-        w.place(x=10, y=100, width=120, height=400)
+        # w = Scale(root, from_=100, to=0, width=50, )
+        # w.place(x=10, y=100, width=120, height=400)
+
+        Button1 = tk.Button(root, text="B1", borderwidth=10)
+        Button1.place(x=20, y=50, width=150, height=150)
+
+        Button2 = tk.Button(root, text="B1", borderwidth=10)
+        Button2.place(x=20 + 180, y=50, width=150, height=150)
+
+        Button3 = tk.Button(root, text="B1", borderwidth=10)
+        Button3.place(x=20 + 2 * 180, y=50, width=150, height=150)
         # print(w.get())
 
 
