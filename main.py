@@ -128,10 +128,10 @@ def startMidi():
     print("starting Midi")
     global outputLaunchaPad, inputLaunchPad, outputToSoftware, inputFromSoftware, faders, button, notes, percentage, flash, switchOn, savePercentage
 
-    outputLaunchaPad = mido.open_output('MIDIOUT2 (LPMiniMK3 MIDI) 3')
-    inputLaunchPad = mido.open_input('MIDIIN2 (LPMiniMK3 MIDI) 2')
-    outputToSoftware = mido.open_output('midi 1')
-    inputFromSoftware = mido.open_input('midi 0')
+    outputLaunchaPad = mido.open_output('MIDIOUT2 (LPMiniMK3 MIDI) 2')
+    inputLaunchPad = mido.open_input('MIDIIN2 (LPMiniMK3 MIDI) 1')
+    outputToSoftware = mido.open_output('midi 3')
+    inputFromSoftware = mido.open_input('midi 2')
 
     faders = [[50, 50, 50, 50, 50], [50, 50, 50, 50, 50], [50, 50, 50, 50, 50], [50, 50, 50, 50, 50],
               [50, 50, 50, 50, 50], [50, 50, 50, 50, 50],
