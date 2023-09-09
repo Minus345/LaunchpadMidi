@@ -1,7 +1,11 @@
+import os
+import time
 from threading import Thread
 
 import mido
+import yaml
 import gui
+from createConfig import createConfig
 
 global outputLaunchaPad, inputLaunchPad, outputToSoftware, inputFromSoftware, faders, button, notes, percentage, flash, switchOn, savePercentage
 
@@ -122,8 +126,13 @@ def loop(message):
 
 
 def startMidi():
-    print(mido.get_output_names())  # To list the output ports
+    print("Output:")
+    print(mido.get_output_names())
+    print("Input:")
     print(mido.get_input_names())
+
+    with open('config.yml', 'r') as file:
+        configFile = yaml.safe_load(file)
 
     print("starting Midi")
     global outputLaunchaPad, inputLaunchPad, outputToSoftware, inputFromSoftware, faders, button, notes, percentage, flash, switchOn, savePercentage
@@ -160,8 +169,23 @@ def startMidi():
 if __name__ == '__main__':
     print("Starting")
 
+    # create config
+    path = './config.yml'
+    check_file = os.path.isfile(path)
+    if check_file == True:
+        print("config loading")
+    else:
+        print("creating config file")
+        createConfig()
+        print("Output:")
+        print(mido.get_output_names())
+        print("Input:")
+        print(mido.get_input_names())
+        exit(101)
+
     thread1 = Thread(target=startMidi)
     thread1.start()
+
 
     print("starting gui")
     gui.start()

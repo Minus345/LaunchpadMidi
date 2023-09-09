@@ -42,9 +42,6 @@ def init():
     with open('config.yml', 'r') as file:
         configFile = yaml.safe_load(file)
 
-    print(configFile['prime_numbers'][0])
-    print(configFile['fader']['a'])
-
     ft = tkFont.Font(family='Times', size=48)
 
     Display1 = tk.Label(root, text=configFile['fader']['a'], font=ft)
@@ -70,7 +67,6 @@ def init():
 
     Display8 = tk.Label(root, text=configFile['fader']['h'], font=ft)
     Display8.place(x=5 + 7 * 142, y=620, width=142, height=50)
-
 
     width = 200
     height = 70
@@ -130,6 +126,7 @@ def init():
 
 
 def start():
+    init()
     root.mainloop()
 
 
