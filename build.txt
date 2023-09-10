@@ -1,0 +1,2 @@
+Build Command:
+pyinstaller .\main.py --hidden-import "mido.backends.rtmidi"
