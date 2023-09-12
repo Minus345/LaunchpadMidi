@@ -4,7 +4,7 @@ import yaml
 from time import strftime
 from tkinter import *
 
-global root, TimeLable
+global root, TimeLable, Display1,Display2, Display3, Display4, Display5, Display6, Display7, Display8, DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4, DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8
 
 
 def time():
@@ -43,6 +43,12 @@ def init():
         configFile = yaml.safe_load(file)
 
     ft = tkFont.Font(family='Times', size=48)
+
+    global var
+    var = StringVar()
+    var.set('hello')
+
+    global Display1, Display2, Display3, Display4, Display5, Display6, Display7, Display8, DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4,DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8
 
     Display1 = tk.Label(root, text=configFile['fader']['a'], font=ft)
     Display1.place(x=5, y=620, width=142, height=50)
@@ -99,7 +105,7 @@ def init():
     # w = Scale(root, from_=100, to=0, width=50, )
     # w.place(x=10, y=100, width=120, height=400)
 
-    Button1 = tk.Button(root, text=configFile['button']['a'], borderwidth=10)
+    Button1 = tk.Button(root, text=configFile['button']['a'], borderwidth=10, command=updateTextInGUI)
     Button1.place(x=20, y=50, width=150, height=150)
 
     Button2 = tk.Button(root, text=configFile['button']['b'], borderwidth=10)
@@ -122,7 +128,28 @@ def init():
                       foreground='black')
 
     TimeLable.place(x=20, y=450)
-    time()
+
+
+def updateTextInGUI():
+    with open('config.yml', 'r') as file:
+        configFile = yaml.safe_load(file)
+    Display1.config(text=configFile['fader']['a'])
+    Display2.config(text=configFile['fader']['b'])
+    Display3.config(text=configFile['fader']['c'])
+    Display4.config(text=configFile['fader']['d'])
+    Display5.config(text=configFile['fader']['e'])
+    Display6.config(text=configFile['fader']['f'])
+    Display7.config(text=configFile['fader']['g'])
+    Display8.config(text=configFile['fader']['h'])
+    DisplayHeight1.config(text=configFile['rightbuttons']['a'])
+    DisplayHeight2.config(text=configFile['rightbuttons']['b'])
+    DisplayHeight3.config(text=configFile['rightbuttons']['c'])
+    DisplayHeight4.config(text=configFile['rightbuttons']['d'])
+    DisplayHeight5.config(text=configFile['rightbuttons']['e'])
+    DisplayHeight6.config(text=configFile['rightbuttons']['f'])
+    DisplayHeight7.config(text=configFile['rightbuttons']['g'])
+    DisplayHeight8.config(text=configFile['rightbuttons']['h'])
+    root.update_idletasks()
 
 
 def start():

@@ -85,6 +85,7 @@ def sendMidiFirstColum(percentage, colum):
 
 
 def loop(message):
+    # side Buttons
     control = [19, 29, 39, 49, 59, 69, 79, 89]
     for x in range(len(control)):
         if message == mido.Message("control_change", channel=0, control=control[x], value=127):
@@ -93,7 +94,7 @@ def loop(message):
         if message == mido.Message("control_change", channel=0, control=control[x], value=0):
             outputToSoftware.send(mido.Message('note_off', note=10 + x, velocity=127, channel=0))
             return
-
+    # faders
     for colum in range(8):
         if message == mido.Message("note_on", note=notes[colum][0], velocity=127, channel=0):
             if not switchOn[colum]:
@@ -159,7 +160,7 @@ def startMidi():
 
     while True:
         msg = inputLaunchPad.receive()
-        #print(msg)
+        # print(msg)
 
         if msg:
             loop(msg)
@@ -184,7 +185,6 @@ if __name__ == '__main__':
 
     thread1 = Thread(target=startMidi)
     thread1.start()
-
 
     print("starting gui")
     gui.start()

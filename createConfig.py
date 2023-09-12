@@ -18,7 +18,7 @@ def createConfig():
             h="H"
         ),
         button=dict(
-            a="A",
+            a="Update GUI",
             b="B",
             c="C",
             d="D",
