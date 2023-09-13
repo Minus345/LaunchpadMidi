@@ -4,14 +4,7 @@ import yaml
 from time import strftime
 from tkinter import *
 
-global root, TimeLable, Display1,Display2, Display3, Display4, Display5, Display6, Display7, Display8, DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4, DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8
-
-
-def time():
-    global TimeLable
-    string = strftime('%H:%M:%S')
-    TimeLable.config(text=string)
-    TimeLable.after(1000, time)
+global root, text, canvas, DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4, DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8
 
 
 def init():
@@ -43,40 +36,30 @@ def init():
         configFile = yaml.safe_load(file)
 
     ft = tkFont.Font(family='Times', size=48)
+    global text, canvas,DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4, DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8
 
-    global var
-    var = StringVar()
-    var.set('hello')
+    alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    LableContent = []
+    for i in range(8):
+        sv = StringVar()
+        sv.set(configFile['fader'][alpha[i]])
+        LableContent.append(sv)
 
-    global Display1, Display2, Display3, Display4, Display5, Display6, Display7, Display8, DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4,DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8
-
-    Display1 = tk.Label(root, text=configFile['fader']['a'], font=ft)
-    Display1.place(x=5, y=620, width=142, height=50)
-
-    Display2 = tk.Label(root, text=configFile['fader']['b'], font=ft)
-    Display2.place(x=5 + 142, y=620, width=142, height=50)
-
-    Display3 = tk.Label(root, text=configFile['fader']['c'], font=ft)
-    Display3.place(x=5 + 2 * 142, y=620, width=142, height=50)
-
-    Display4 = tk.Label(root, text=configFile['fader']['d'], font=ft)
-    Display4.place(x=5 + 3 * 142, y=620, width=142, height=50)
-
-    Display5 = tk.Label(root, text=configFile['fader']['e'], font=ft)
-    Display5.place(x=5 + 4 * 142, y=620, width=142, height=50)
-
-    Display6 = tk.Label(root, text=configFile['fader']['f'], font=ft)
-    Display6.place(x=5 + 5 * 142, y=620, width=142, height=50)
-
-    Display7 = tk.Label(root, text=configFile['fader']['g'], font=ft)
-    Display7.place(x=5 + 6 * 142, y=620, width=142, height=50)
-
-    Display8 = tk.Label(root, text=configFile['fader']['h'], font=ft)
-    Display8.place(x=5 + 7 * 142, y=620, width=142, height=50)
+    text = []
+    canvas = Canvas(bg='skyblue')
+    canvas.place(x=0, y=200, width=1500, height=500)
+    text.append(canvas.create_text(50, 250, text=LableContent[0].get(), angle=90, font=ft, fill="green"))
+    text.append(canvas.create_text(50 + 142, 250, text=LableContent[1].get(), angle=90, font=ft))
+    text.append(canvas.create_text(50 + 2 * 142, 250, text=LableContent[2].get(), angle=90, font=ft))
+    text.append(canvas.create_text(50 + 3 * 142, 250, text=LableContent[3].get(), angle=90, font=ft))
+    text.append(canvas.create_text(50 + 4 * 142, 250, text=LableContent[4].get(), angle=90, font=ft))
+    text.append(canvas.create_text(50 + 5 * 142, 250, text=LableContent[5].get(), angle=90, font=ft))
+    text.append(canvas.create_text(50 + 6 * 142, 250, text=LableContent[6].get(), angle=90, font=ft))
+    text.append(canvas.create_text(50 + 7 * 142, 250, text=LableContent[7].get(), angle=90, font=ft))
 
     width = 200
     height = 70
-    x = 1050
+    x = 1080
 
     DisplayHeight1 = tk.Label(root, text=configFile['rightbuttons']['a'], font=ft)
     DisplayHeight1.place(x=x, y=0, width=width, height=height)
@@ -102,9 +85,6 @@ def init():
     DisplayHeight8 = tk.Label(root, text=configFile['rightbuttons']['h'], font=ft)
     DisplayHeight8.place(x=x, y=0 + 7 * height, width=width, height=height)
 
-    # w = Scale(root, from_=100, to=0, width=50, )
-    # w.place(x=10, y=100, width=120, height=400)
-
     Button1 = tk.Button(root, text=configFile['button']['a'], borderwidth=10, command=updateTextInGUI)
     Button1.place(x=20, y=50, width=150, height=150)
 
@@ -123,24 +103,13 @@ def init():
     Button6 = tk.Button(root, text=configFile['button']['f'], borderwidth=10)
     Button6.place(x=20 + 5 * 180, y=50, width=150, height=150)
 
-    global TimeLable
-    TimeLable = Label(root, font=('calibri', 70, 'bold'),
-                      foreground='black')
-
-    TimeLable.place(x=20, y=450)
-
 
 def updateTextInGUI():
     with open('config.yml', 'r') as file:
         configFile = yaml.safe_load(file)
-    Display1.config(text=configFile['fader']['a'])
-    Display2.config(text=configFile['fader']['b'])
-    Display3.config(text=configFile['fader']['c'])
-    Display4.config(text=configFile['fader']['d'])
-    Display5.config(text=configFile['fader']['e'])
-    Display6.config(text=configFile['fader']['f'])
-    Display7.config(text=configFile['fader']['g'])
-    Display8.config(text=configFile['fader']['h'])
+    alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    for i in range(8):
+        canvas.itemconfigure(text[i], text=configFile['fader'][alpha[i]])
     DisplayHeight1.config(text=configFile['rightbuttons']['a'])
     DisplayHeight2.config(text=configFile['rightbuttons']['b'])
     DisplayHeight3.config(text=configFile['rightbuttons']['c'])
