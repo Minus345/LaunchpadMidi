@@ -38,7 +38,7 @@ def init():
     ft = tkFont.Font(family='Times', size=48)
     global text, canvas, DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4, DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8
     text = []
-    canvas = Canvas(bg='skyblue')
+    canvas = Canvas()
     canvas.place(x=0, y=200, width=1500, height=500)
     text.append(canvas.create_text(50, 250, text="a", angle=90, font=ft))
     text.append(canvas.create_text(50 + 142, 250, text="b", angle=90, font=ft))
@@ -101,8 +101,9 @@ def updateTextInGUI():
     with open('config.yml', 'r') as file:
         configFile = yaml.safe_load(file)
     alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
-    df = pd.read_excel("lib/tk-colours.xlsx")  # Path of the file.
+    df = pd.read_excel("data/tk-colours.xlsx")  # Path of the file.
     colours = df['Color Name'].values.tolist()
+    #print(colours)
     for i in range(8):
         if configFile['fadercolour'][alpha[i]] not in colours:
             print("wrong colour in row ", alpha.__getitem__(i))
