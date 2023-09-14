@@ -17,6 +17,16 @@ def createConfig():
             g="G",
             h="H"
         ),
+        fadercolour=dict(
+            a="black",
+            b="black",
+            c="black",
+            d="black",
+            e="black",
+            f="black",
+            g="black",
+            h="black",
+        ),
         button=dict(
             a="Update GUI",
             b="B",

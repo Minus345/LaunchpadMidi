@@ -1,8 +1,8 @@
 import tkinter as tk
 import tkinter.font as tkFont
-import yaml
-from time import strftime
 from tkinter import *
+import pandas as pd
+import yaml
 
 global root, text, canvas, DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4, DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8
 
@@ -36,26 +36,18 @@ def init():
         configFile = yaml.safe_load(file)
 
     ft = tkFont.Font(family='Times', size=48)
-    global text, canvas,DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4, DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8
-
-    alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
-    LableContent = []
-    for i in range(8):
-        sv = StringVar()
-        sv.set(configFile['fader'][alpha[i]])
-        LableContent.append(sv)
-
+    global text, canvas, DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4, DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8
     text = []
     canvas = Canvas(bg='skyblue')
     canvas.place(x=0, y=200, width=1500, height=500)
-    text.append(canvas.create_text(50, 250, text=LableContent[0].get(), angle=90, font=ft, fill="green"))
-    text.append(canvas.create_text(50 + 142, 250, text=LableContent[1].get(), angle=90, font=ft))
-    text.append(canvas.create_text(50 + 2 * 142, 250, text=LableContent[2].get(), angle=90, font=ft))
-    text.append(canvas.create_text(50 + 3 * 142, 250, text=LableContent[3].get(), angle=90, font=ft))
-    text.append(canvas.create_text(50 + 4 * 142, 250, text=LableContent[4].get(), angle=90, font=ft))
-    text.append(canvas.create_text(50 + 5 * 142, 250, text=LableContent[5].get(), angle=90, font=ft))
-    text.append(canvas.create_text(50 + 6 * 142, 250, text=LableContent[6].get(), angle=90, font=ft))
-    text.append(canvas.create_text(50 + 7 * 142, 250, text=LableContent[7].get(), angle=90, font=ft))
+    text.append(canvas.create_text(50, 250, text="a", angle=90, font=ft))
+    text.append(canvas.create_text(50 + 142, 250, text="b", angle=90, font=ft))
+    text.append(canvas.create_text(50 + 2 * 142, 250, text="c", angle=90, font=ft))
+    text.append(canvas.create_text(50 + 3 * 142, 250, text="d", angle=90, font=ft))
+    text.append(canvas.create_text(50 + 4 * 142, 250, text="e", angle=90, font=ft))
+    text.append(canvas.create_text(50 + 5 * 142, 250, text="f", angle=90, font=ft))
+    text.append(canvas.create_text(50 + 6 * 142, 250, text="f", angle=90, font=ft))
+    text.append(canvas.create_text(50 + 7 * 142, 250, text="h", angle=90, font=ft))
 
     width = 200
     height = 70
@@ -102,14 +94,21 @@ def init():
 
     Button6 = tk.Button(root, text=configFile['button']['f'], borderwidth=10)
     Button6.place(x=20 + 5 * 180, y=50, width=150, height=150)
+    updateTextInGUI()
 
 
 def updateTextInGUI():
     with open('config.yml', 'r') as file:
         configFile = yaml.safe_load(file)
     alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    df = pd.read_excel("lib/tk-colours.xlsx")  # Path of the file.
+    colours = df['Color Name'].values.tolist()
     for i in range(8):
-        canvas.itemconfigure(text[i], text=configFile['fader'][alpha[i]])
+        if configFile['fadercolour'][alpha[i]] not in colours:
+            print("wrong colour in row ", alpha.__getitem__(i))
+
+    for i in range(8):
+        canvas.itemconfigure(text[i], text=configFile['fader'][alpha[i]], fill=configFile['fadercolour'][alpha[i]])
     DisplayHeight1.config(text=configFile['rightbuttons']['a'])
     DisplayHeight2.config(text=configFile['rightbuttons']['b'])
     DisplayHeight3.config(text=configFile['rightbuttons']['c'])
