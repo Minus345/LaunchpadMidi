@@ -6,10 +6,14 @@ import yaml
 import gui
 from createConfig import createConfig
 
-global outputLaunchaPad, inputLaunchPad, outputToSoftware, inputFromSoftware, faders, button, notes, percentage, flash, switchOn, savePercentage
+global outputLaunchaPad, inputLaunchPad, outputToSoftware, inputFromSoftware, faders, button, notes, percentage, flash, switchOn, savePercentage, faderColour
 
 
 def updateFirstColum(colum):
+    # notes = button
+    # velocity = colour
+    # channel = static, flashing, pulsing
+
     outputLaunchaPad.send(mido.Message('note_on', note=notes[colum][0], velocity=button[colum][0], channel=2))
     outputLaunchaPad.send(mido.Message('note_on', note=notes[colum][1], velocity=button[colum][1], channel=0))
 
@@ -21,52 +25,51 @@ def updateFirstColum(colum):
 
 
 def updateFirstColumWithPercentage(percentage, flash, switchOn, colum):
-    channel = colum;
-    if switchOn[channel]:
-        button[channel][0] = 45
+    if switchOn[colum]:
+        button[colum][0] = 45
         color = 9
         outputToSoftware.send(mido.Message('note_on', note=colum + 1, velocity=127, channel=0))
     else:
-        button[channel][0] = 0
-        color = 5
+        button[colum][0] = 0
+        color = faderColour[colum]
         outputToSoftware.send(mido.Message('note_off', note=colum + 1, velocity=127, channel=0))
 
-    match percentage[channel]:
+    match percentage[colum]:
         case 0:
-            faders[channel][4] = 0
-            faders[channel][3] = 0
-            faders[channel][2] = 0
-            faders[channel][1] = 0
-            faders[channel][0] = color
+            faders[colum][4] = 0
+            faders[colum][3] = 0
+            faders[colum][2] = 0
+            faders[colum][1] = 0
+            faders[colum][0] = color
         case 25:
-            faders[channel][4] = 0
-            faders[channel][3] = 0
-            faders[channel][2] = 0
-            faders[channel][1] = color
-            faders[channel][0] = color
+            faders[colum][4] = 0
+            faders[colum][3] = 0
+            faders[colum][2] = 0
+            faders[colum][1] = color
+            faders[colum][0] = color
         case 50:
-            faders[channel][4] = 0
-            faders[channel][3] = 0
-            faders[channel][2] = color
-            faders[channel][1] = color
-            faders[channel][0] = color
+            faders[colum][4] = 0
+            faders[colum][3] = 0
+            faders[colum][2] = color
+            faders[colum][1] = color
+            faders[colum][0] = color
         case 75:
-            faders[channel][4] = 0
-            faders[channel][3] = color
-            faders[channel][2] = color
-            faders[channel][1] = color
-            faders[channel][0] = color
+            faders[colum][4] = 0
+            faders[colum][3] = color
+            faders[colum][2] = color
+            faders[colum][1] = color
+            faders[colum][0] = color
         case 100:
-            faders[channel][4] = color
-            faders[channel][3] = color
-            faders[channel][2] = color
-            faders[channel][1] = color
-            faders[channel][0] = color
+            faders[colum][4] = color
+            faders[colum][3] = color
+            faders[colum][2] = color
+            faders[colum][1] = color
+            faders[colum][0] = color
 
-    if flash[channel]:
-        button[channel][1] = 21
+    if flash[colum]:
+        button[colum][1] = 21
     else:
-        button[channel][1] = 45
+        button[colum][1] = 45
     updateFirstColum(colum)
 
 
@@ -154,6 +157,31 @@ def startMidi():
     flash = [False, False, False, False, False, False, False, False]
     switchOn = [False, False, False, False, False, False, False, False]
     savePercentage = [0, 0, 0, 0, 0, 0, 0, 0]
+
+    global faderColour
+    faderColour = [1, 2, 3, 4, 5, 6, 7, 8]
+    alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
+
+    for i in range(8):
+        match configFile['fadercolour1'][alpha[i]]:
+            case 'white':
+                faderColour[i] = 3
+            case 'red':
+                faderColour[i] = 5
+            case 'orange':
+                faderColour[i] = 10
+            case 'yellow':
+                faderColour[i] = 13
+            case 'green':
+                faderColour[i] = 22
+            case 'blue':
+                faderColour[i] = 45
+            case 'pink':
+                faderColour[i] = 53
+            case _:
+                faderColour[i] = 2
+
+    print(faderColour)
 
     for x in range(8):
         updateFirstColum(x)
