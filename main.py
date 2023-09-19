@@ -166,9 +166,7 @@ def startMidi():
             loop(msg)
 
 
-if __name__ == '__main__':
-    print("Starting")
-
+def checkStart():
     # create config
     path = './config.yml'
     check_file = os.path.isfile(path)
@@ -183,8 +181,6 @@ if __name__ == '__main__':
         print(mido.get_input_names())
         exit(101)
 
-    thread1 = Thread(target=startMidi)
-    thread1.start()
 
-    print("starting gui")
+if __name__ == '__main__':
     gui.start()

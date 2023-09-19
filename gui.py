@@ -1,8 +1,13 @@
+import time
 import tkinter as tk
 import tkinter.font as tkFont
+from threading import Thread
 from tkinter import *
 import pandas as pd
 import yaml
+
+import main
+from createConfig import createConfig
 
 global root, text, canvas, DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4, DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8
 
@@ -103,7 +108,7 @@ def updateTextInGUI():
     alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
     df = pd.read_excel("data/tk-colours.xlsx")  # Path of the file.
     colours = df['Color Name'].values.tolist()
-    #print(colours)
+    # print(colours)
     for i in range(8):
         if configFile['fadercolour'][alpha[i]] not in colours:
             print("wrong colour in row ", alpha.__getitem__(i))
@@ -122,6 +127,11 @@ def updateTextInGUI():
 
 
 def start():
+    print("Starting")
+    main.checkStart()
+    thread1 = Thread(target=main.startMidi, daemon=True)
+    thread1.start()
+    print("starting gui")
     init()
     root.mainloop()
 
