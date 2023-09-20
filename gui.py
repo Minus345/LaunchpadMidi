@@ -129,7 +129,6 @@ def updateTextInGUI():
 
 
 def updateFader():
-    print("updateFader")
     q.put("updateFader")
 
 def start():

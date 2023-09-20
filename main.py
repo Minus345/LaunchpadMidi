@@ -24,14 +24,14 @@ def updateFirstColum(colum):
     outputLaunchaPad.send(mido.Message('note_on', note=notes[colum][7], velocity=faders[colum][4], channel=0))
 
 
-def updateFirstColumWithPercentage(percentage, flash, switchOn, colum):
+def updateColumWithPercentage(percentage, flash, switchOn, colum):
+    color = faderColour[colum]
+
     if switchOn[colum]:
         button[colum][0] = 45
-        color = 9
         outputToSoftware.send(mido.Message('note_on', note=colum + 1, velocity=127, channel=0))
     else:
         button[colum][0] = 0
-        color = faderColour[colum]
         outputToSoftware.send(mido.Message('note_off', note=colum + 1, velocity=127, channel=0))
 
     match percentage[colum]:
@@ -73,7 +73,7 @@ def updateFirstColumWithPercentage(percentage, flash, switchOn, colum):
     updateFirstColum(colum)
 
 
-def sendMidiFirstColum(percentage, colum):
+def sendMidiToSoftware(percentage, colum):
     match percentage[colum]:
         case 0:
             outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=0))
@@ -124,8 +124,8 @@ def loop(message):
         if message == mido.Message("note_on", note=notes[colum][7], velocity=127, channel=0):
             percentage[colum] = 100
 
-        updateFirstColumWithPercentage(percentage, flash, switchOn, colum)
-        sendMidiFirstColum(percentage, colum)
+        updateColumWithPercentage(percentage, flash, switchOn, colum)
+        sendMidiToSoftware(percentage, colum)
 
 
 def updateFaderColour():

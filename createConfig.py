@@ -39,7 +39,7 @@ def createConfig():
         ),
         button=dict(
             a="Update GUI",
-            b="B",
+            b="Update Fader",
             c="C",
             d="D",
             e="E",
