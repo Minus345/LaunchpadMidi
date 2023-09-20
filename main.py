@@ -1,12 +1,12 @@
 import os
 from threading import Thread
-
+from queue import Queue
 import mido
 import yaml
 import gui
 from createConfig import createConfig
 
-global outputLaunchaPad, inputLaunchPad, outputToSoftware, inputFromSoftware, faders, button, notes, percentage, flash, switchOn, savePercentage, faderColour
+global outputLaunchaPad, inputLaunchPad, outputToSoftware, inputFromSoftware, faders, button, notes, percentage, flash, switchOn, savePercentage, faderColour, queue
 
 
 def updateFirstColum(colum):
@@ -128,7 +128,37 @@ def loop(message):
         sendMidiFirstColum(percentage, colum)
 
 
-def startMidi():
+def updateFaderColour():
+    with open('config.yml', 'r') as file:
+        configFile = yaml.safe_load(file)
+
+    global faderColour
+    faderColour = [1, 2, 3, 4, 5, 6, 7, 8]
+    alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
+
+    for i in range(8):
+        match configFile['fadercolour'][alpha[i]]:
+            case 'white':
+                faderColour[i] = 3
+            case 'red':
+                faderColour[i] = 5
+            case 'orange':
+                faderColour[i] = 10
+            case 'yellow':
+                faderColour[i] = 13
+            case 'green':
+                faderColour[i] = 22
+            case 'blue':
+                faderColour[i] = 45
+            case 'pink':
+                faderColour[i] = 53
+            case _:
+                faderColour[i] = 2
+
+
+def startMidi(q):
+    global queue
+    queue = q
     print("Output:")
     print(mido.get_output_names())
     print("Input:")
@@ -158,35 +188,17 @@ def startMidi():
     switchOn = [False, False, False, False, False, False, False, False]
     savePercentage = [0, 0, 0, 0, 0, 0, 0, 0]
 
-    global faderColour
-    faderColour = [1, 2, 3, 4, 5, 6, 7, 8]
-    alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
-
-    for i in range(8):
-        match configFile['fadercolour1'][alpha[i]]:
-            case 'white':
-                faderColour[i] = 3
-            case 'red':
-                faderColour[i] = 5
-            case 'orange':
-                faderColour[i] = 10
-            case 'yellow':
-                faderColour[i] = 13
-            case 'green':
-                faderColour[i] = 22
-            case 'blue':
-                faderColour[i] = 45
-            case 'pink':
-                faderColour[i] = 53
-            case _:
-                faderColour[i] = 2
-
-    print(faderColour)
+    updateFaderColour()
 
     for x in range(8):
         updateFirstColum(x)
 
     while True:
+        if not queue.empty():
+            data = queue.get_nowait()
+            if data == "updateFader":
+                updateFaderColour()
+
         msg = inputLaunchPad.receive()
         # print(msg)
 

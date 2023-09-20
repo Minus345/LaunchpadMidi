@@ -1,3 +1,5 @@
+from queue import Queue
+
 import time
 import tkinter as tk
 import tkinter.font as tkFont
@@ -9,7 +11,7 @@ import yaml
 import main
 from createConfig import createConfig
 
-global root, text, canvas, DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4, DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8
+global root, text, canvas, DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4, DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8, q
 
 
 def init():
@@ -85,7 +87,7 @@ def init():
     Button1 = tk.Button(root, text=configFile['button']['a'], borderwidth=10, command=updateTextInGUI)
     Button1.place(x=20, y=50, width=150, height=150)
 
-    Button2 = tk.Button(root, text=configFile['button']['b'], borderwidth=10)
+    Button2 = tk.Button(root, text=configFile['button']['b'], borderwidth=10, command=updateFader)
     Button2.place(x=20 + 180, y=50, width=150, height=150)
 
     Button3 = tk.Button(root, text=configFile['button']['c'], borderwidth=10)
@@ -110,11 +112,11 @@ def updateTextInGUI():
     colours = df['Color Name'].values.tolist()
     # print(colours)
     for i in range(8):
-        if configFile['fadercolour'][alpha[i]] not in colours:
+        if configFile['fadercolourGUI'][alpha[i]] not in colours:
             print("wrong colour in row ", alpha.__getitem__(i))
 
     for i in range(8):
-        canvas.itemconfigure(text[i], text=configFile['fader'][alpha[i]], fill=configFile['fadercolour'][alpha[i]])
+        canvas.itemconfigure(text[i], text=configFile['fader'][alpha[i]], fill=configFile['fadercolourGUI'][alpha[i]])
     DisplayHeight1.config(text=configFile['rightbuttons']['a'])
     DisplayHeight2.config(text=configFile['rightbuttons']['b'])
     DisplayHeight3.config(text=configFile['rightbuttons']['c'])
@@ -126,10 +128,16 @@ def updateTextInGUI():
     root.update_idletasks()
 
 
+def updateFader():
+    print("updateFader")
+    q.put("updateFader")
+
 def start():
     print("Starting")
+    global q
+    q = Queue()
     main.checkStart()
-    thread1 = Thread(target=main.startMidi, daemon=True)
+    thread1 = Thread(target=main.startMidi, daemon=True, args=(q, ))
     thread1.start()
     print("starting gui")
     init()
