@@ -36,7 +36,7 @@ def init():
     GLabel_572["font"] = ft
     GLabel_572["fg"] = "#333333"
     GLabel_572["justify"] = "center"
-    GLabel_572["text"] = "DMX Joker Extenstion for Lauchpad"
+    GLabel_572["text"] = "DMX Joker Extension for Launchpad"
     GLabel_572.place(x=0, y=0, width=1278, height=30)
 
     with open('config.yml', 'r') as file:

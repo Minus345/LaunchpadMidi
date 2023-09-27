@@ -87,45 +87,59 @@ def sendMidiToSoftware(percentage, colum):
             outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=64))
 
 
+def getButtons(message, y):
+    # faders
+    if message == mido.Message("note_on", note=notes[y][0], velocity=127, channel=0):
+        if not switchOn[y]:
+            switchOn[y] = True
+        else:
+            switchOn[y] = False
+
+    if message == mido.Message("note_on", note=notes[y][1], velocity=127, channel=0):  # flash
+        savePercentage[y] = percentage[y]
+        percentage[y] = 100
+        flash[y] = True
+
+    if message == mido.Message("note_on", note=notes[y][1], velocity=0, channel=0):  # flash
+        if flash[y]:
+            percentage[y] = savePercentage[y]
+            flash[y] = False
+
+    if message == mido.Message("note_on", note=notes[y][3], velocity=127, channel=0):
+        percentage[y] = 0
+    if message == mido.Message("note_on", note=notes[y][4], velocity=127, channel=0):
+        percentage[y] = 25
+    if message == mido.Message("note_on", note=notes[y][5], velocity=127, channel=0):
+        percentage[y] = 50
+    if message == mido.Message("note_on", note=notes[y][6], velocity=127, channel=0):
+        percentage[y] = 75
+    if message == mido.Message("note_on", note=notes[y][7], velocity=127, channel=0):
+        percentage[y] = 100
+
+    updateColumWithPercentage(percentage, flash, switchOn, y)
+    sendMidiToSoftware(percentage, y)
+
+
 def loop(message):
     # side Buttons
     control = [19, 29, 39, 49, 59, 69, 79, 89]
     for x in range(len(control)):
         if message == mido.Message("control_change", channel=0, control=control[x], value=127):
             outputToSoftware.send(mido.Message('note_on', note=10 + x, velocity=127, channel=0))
+            outputLaunchaPad.send(mido.Message('control_change', channel=0, control=control[x], value=3))
             return
         if message == mido.Message("control_change", channel=0, control=control[x], value=0):
             outputToSoftware.send(mido.Message('note_off', note=10 + x, velocity=127, channel=0))
+            outputLaunchaPad.send(mido.Message('control_change', channel=0, control=control[x], value=0))
             return
-    # faders
-    for colum in range(8):
-        if message == mido.Message("note_on", note=notes[colum][0], velocity=127, channel=0):
-            if not switchOn[colum]:
-                switchOn[colum] = True
-            else:
-                switchOn[colum] = False
-        if message == mido.Message("note_on", note=notes[colum][1], velocity=127, channel=0):  # flash
-            savePercentage[colum] = percentage[colum]
-            percentage[colum] = 100
-            flash[colum] = True
-        if message == mido.Message("note_on", note=notes[colum][1], velocity=0, channel=0):
-            if flash[colum]:
-                percentage[colum] = savePercentage[colum]
-                flash[colum] = False
-
-        if message == mido.Message("note_on", note=notes[colum][3], velocity=127, channel=0):
-            percentage[colum] = 0
-        if message == mido.Message("note_on", note=notes[colum][4], velocity=127, channel=0):
-            percentage[colum] = 25
-        if message == mido.Message("note_on", note=notes[colum][5], velocity=127, channel=0):
-            percentage[colum] = 50
-        if message == mido.Message("note_on", note=notes[colum][6], velocity=127, channel=0):
-            percentage[colum] = 75
-        if message == mido.Message("note_on", note=notes[colum][7], velocity=127, channel=0):
-            percentage[colum] = 100
-
-        updateColumWithPercentage(percentage, flash, switchOn, colum)
-        sendMidiToSoftware(percentage, colum)
+    # check wich channel is pressed:
+    intensity = ["toggle", "flash", "not used", "0", "25", "50", "75", "100"]
+    for x in range(8):  # x is colum  y is row y: 0: toggle 1: flash 2: not used 3:0% 4:25% 5:50% 6:75% 7:100%
+        for y in range(8):
+            if message == mido.Message("note_on", note=notes[y][x], velocity=127, channel=0) or message == mido.Message(
+                    "note_on", note=notes[y][x], velocity=0, channel=0):
+                #print("colum: ", y, "row: ", intensity[x], message)
+                getButtons(message, y)
 
 
 def updateFaderColour():
