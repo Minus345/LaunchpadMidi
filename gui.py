@@ -84,10 +84,10 @@ def init():
     DisplayHeight8 = tk.Label(root, text=configFile['rightbuttons']['h'], font=ft)
     DisplayHeight8.place(x=x, y=0 + 7 * height, width=width, height=height)
 
-    Button1 = tk.Button(root, text=configFile['button']['a'], borderwidth=10, command=updateTextInGUI)
+    Button1 = tk.Button(root, text=configFile['button']['a'], borderwidth=10, command=updateColours)
     Button1.place(x=20, y=50, width=150, height=150)
 
-    Button2 = tk.Button(root, text=configFile['button']['b'], borderwidth=10, command=updateFader)
+    Button2 = tk.Button(root, text=configFile['button']['b'], borderwidth=10)
     Button2.place(x=20 + 180, y=50, width=150, height=150)
 
     Button3 = tk.Button(root, text=configFile['button']['c'], borderwidth=10)
@@ -101,10 +101,11 @@ def init():
 
     Button6 = tk.Button(root, text=configFile['button']['f'], borderwidth=10)
     Button6.place(x=20 + 5 * 180, y=50, width=150, height=150)
-    updateTextInGUI()
+    updateColours()
 
 
-def updateTextInGUI():
+def updateColours():
+    q.put("updateFader")
     with open('config.yml', 'r') as file:
         configFile = yaml.safe_load(file)
     alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
@@ -112,11 +113,11 @@ def updateTextInGUI():
     colours = df['Color Name'].values.tolist()
     # print(colours)
     for i in range(8):
-        if configFile['fadercolourGUI'][alpha[i]] not in colours:
+        if configFile['fadercolour'][alpha[i]] not in colours:
             print("wrong colour in row ", alpha.__getitem__(i))
 
     for i in range(8):
-        canvas.itemconfigure(text[i], text=configFile['fader'][alpha[i]], fill=configFile['fadercolourGUI'][alpha[i]])
+        canvas.itemconfigure(text[i], text=configFile['fader'][alpha[i]], fill=configFile['fadercolour'][alpha[i]])
     DisplayHeight1.config(text=configFile['rightbuttons']['a'])
     DisplayHeight2.config(text=configFile['rightbuttons']['b'])
     DisplayHeight3.config(text=configFile['rightbuttons']['c'])
@@ -126,10 +127,6 @@ def updateTextInGUI():
     DisplayHeight7.config(text=configFile['rightbuttons']['g'])
     DisplayHeight8.config(text=configFile['rightbuttons']['h'])
     root.update_idletasks()
-
-
-def updateFader():
-    q.put("updateFader")
 
 def start():
     print("Starting")

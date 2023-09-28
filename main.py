@@ -9,7 +9,23 @@ from createConfig import createConfig
 global outputLaunchaPad, inputLaunchPad, outputToSoftware, inputFromSoftware, faders, button, notes, percentage, flash, switchOn, savePercentage, faderColour, queue
 
 
-def updateFirstColum(colum):
+def checkStart():
+    # create config
+    path = './config.yml'
+    check_file = os.path.isfile(path)
+    if check_file == True:
+        print("config loading")
+    else:
+        print("creating config file")
+        createConfig()
+        print("Output:")
+        print(mido.get_output_names())
+        print("Input:")
+        print(mido.get_input_names())
+        exit(101)
+
+
+def updateLightingInColum(colum):
     # notes = button
     # velocity = colour
     # channel = static, flashing, pulsing
@@ -70,7 +86,7 @@ def updateColumWithPercentage(percentage, flash, switchOn, colum):
         button[colum][1] = 21
     else:
         button[colum][1] = 45
-    updateFirstColum(colum)
+    updateLightingInColum(colum)
 
 
 def sendMidiToSoftware(percentage, colum):
@@ -138,7 +154,7 @@ def loop(message):
         for y in range(8):
             if message == mido.Message("note_on", note=notes[y][x], velocity=127, channel=0) or message == mido.Message(
                     "note_on", note=notes[y][x], velocity=0, channel=0):
-                #print("colum: ", y, "row: ", intensity[x], message)
+                # print("colum: ", y, "row: ", intensity[x], message)
                 getButtons(message, y)
 
 
@@ -205,7 +221,7 @@ def startMidi(q):
     updateFaderColour()
 
     for x in range(8):
-        updateFirstColum(x)
+        updateLightingInColum(x)
 
     while True:
         if not queue.empty():
@@ -218,22 +234,6 @@ def startMidi(q):
 
         if msg:
             loop(msg)
-
-
-def checkStart():
-    # create config
-    path = './config.yml'
-    check_file = os.path.isfile(path)
-    if check_file == True:
-        print("config loading")
-    else:
-        print("creating config file")
-        createConfig()
-        print("Output:")
-        print(mido.get_output_names())
-        print("Input:")
-        print(mido.get_input_names())
-        exit(101)
 
 
 if __name__ == '__main__':
