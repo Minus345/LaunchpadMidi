@@ -40,16 +40,8 @@ def updateLightingInColum(colum):
     outputLaunchaPad.send(mido.Message('note_on', note=notes[colum][7], velocity=faders[colum][4], channel=0))
 
 
-def updateColumWithPercentage(percentage, flash, switchOn, colum):
+def updateColumWithPercentage(percentage, flash, colum):
     color = faderColour[colum]
-
-    if switchOn[colum]:
-        button[colum][0] = 45
-        outputToSoftware.send(mido.Message('note_on', note=colum + 1, velocity=127, channel=0))
-    else:
-        button[colum][0] = 0
-        outputToSoftware.send(mido.Message('note_off', note=colum + 1, velocity=127, channel=0))
-
     match percentage[colum]:
         case 0:
             faders[colum][4] = 0
@@ -86,7 +78,6 @@ def updateColumWithPercentage(percentage, flash, switchOn, colum):
         button[colum][1] = 21
     else:
         button[colum][1] = 45
-    updateLightingInColum(colum)
 
 
 def sendMidiToSoftware(percentage, colum):
@@ -106,10 +97,25 @@ def sendMidiToSoftware(percentage, colum):
 def getButtons(message, y):
     # faders
     if message == mido.Message("note_on", note=notes[y][0], velocity=127, channel=0):
+        # toggle button
         if not switchOn[y]:
             switchOn[y] = True
         else:
             switchOn[y] = False
+
+        if switchOn[y]:
+            button[y][0] = 45
+            outputToSoftware.send(mido.Message('note_on', note=y + 1, velocity=127, channel=0))
+            updateLightingInColum(y)
+            return
+        else:
+            button[y][0] = 0
+            outputToSoftware.send(mido.Message('note_off', note=y + 1, velocity=127, channel=0))
+            updateLightingInColum(y)
+            return
+
+    if message == mido.Message("note_on", note=notes[y][0], velocity=0, channel=0):  # catch if toggle is released
+        return
 
     if message == mido.Message("note_on", note=notes[y][1], velocity=127, channel=0):  # flash
         savePercentage[y] = percentage[y]
@@ -132,7 +138,8 @@ def getButtons(message, y):
     if message == mido.Message("note_on", note=notes[y][7], velocity=127, channel=0):
         percentage[y] = 100
 
-    updateColumWithPercentage(percentage, flash, switchOn, y)
+    updateColumWithPercentage(percentage, flash, y)
+    updateLightingInColum(y)
     sendMidiToSoftware(percentage, y)
 
 
