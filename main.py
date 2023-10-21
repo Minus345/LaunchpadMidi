@@ -30,7 +30,7 @@ def updateLightingInColum(colum):
     # velocity = colour
     # channel = static, flashing, pulsing
     outputLaunchaPad.send(mido.Message('note_on', note=notes[colum][1], velocity=flashButton[colum][0], channel=0))
-    outputLaunchaPad.send(mido.Message('note_on', note=notes[colum][0], velocity=71, channel=0))
+    outputLaunchaPad.send(mido.Message('note_on', note=notes[colum][0], velocity=0, channel=0))
 
     outputLaunchaPad.send(mido.Message('note_on', note=notes[colum][2], velocity=faders[colum][0], channel=0))
     outputLaunchaPad.send(mido.Message('note_on', note=notes[colum][3], velocity=faders[colum][1], channel=0))
@@ -121,16 +121,17 @@ def getButtons(message, y):
 
 
 def loop(message):
+    # print(message)
     # side Buttons
     control = [19, 29, 39, 49, 59, 69, 79, 89]
     for x in range(len(control)):
         if message == mido.Message("control_change", channel=0, control=control[x], value=127):
             outputToSoftware.send(mido.Message('note_on', note=10 + x, velocity=127, channel=0))
-            outputLaunchaPad.send(mido.Message('control_change', channel=0, control=control[x], value=3))
+            outputLaunchaPad.send(mido.Message('control_change', channel=0, control=control[x], value=6))
             return
         if message == mido.Message("control_change", channel=0, control=control[x], value=0):
             outputToSoftware.send(mido.Message('note_off', note=10 + x, velocity=127, channel=0))
-            outputLaunchaPad.send(mido.Message('control_change', channel=0, control=control[x], value=0))
+            outputLaunchaPad.send(mido.Message('control_change', channel=0, control=control[x], value=1))
             return
 
     # bottom buttons
@@ -138,20 +139,20 @@ def loop(message):
     for x in range(len(bottomButtons)):
         if message == mido.Message("note_on", note=bottomButtons[x], velocity=127, channel=0):
             outputToSoftware.send(mido.Message('note_on', note=x + 1, velocity=127, channel=0))
-            outputLaunchaPad.send(mido.Message('note_on', note=bottomButtons[x], velocity=3, channel=0))
+            outputLaunchaPad.send(mido.Message('note_on', note=bottomButtons[x], velocity=6, channel=0))
             return
         if message == mido.Message("note_on", note=bottomButtons[x], velocity=0, channel=0):
             outputToSoftware.send(mido.Message('note_off', note=x + 1, velocity=127, channel=0))
-            outputLaunchaPad.send(mido.Message('note_off', note=bottomButtons[x], velocity=3, channel=0))
+            outputLaunchaPad.send(mido.Message('note_on', note=bottomButtons[x], velocity=1, channel=0))
             return
 
     # check wich channel is pressed:
-    intensity = ["flash", "not used", "0", "25", "50", "75", "100"]
+    intensity = ["not used", "flash", "0", "25", "50", "75", "100"]
     for x in range(7):  # x is colum  y is row y: 0: toggle 1: flash 2: not used 3:0% 4:25% 5:50% 6:75% 7:100%
         for y in range(8):
             if message == mido.Message("note_on", note=notes[y][x], velocity=127, channel=0) or message == mido.Message(
                     "note_on", note=notes[y][x], velocity=0, channel=0):
-                print("colum: ", y, "row: ", intensity[x], message)
+                # print("colum: ", y, "row: ", intensity[x], message)
                 getButtons(message, y)
 
 
@@ -219,6 +220,14 @@ def startMidi(q):
 
     for x in range(8):
         updateLightingInColum(x)
+
+    bottomButtons = [11, 12, 13, 14, 15, 16, 17, 18]
+    for x in range(8):
+        outputLaunchaPad.send(mido.Message('note_on', note=bottomButtons[x], velocity=1, channel=0))
+
+    control = [19, 29, 39, 49, 59, 69, 79, 89]
+    for x in range(8):
+        outputLaunchaPad.send(mido.Message('control_change', channel=0, control=control[x], value=1))
 
     while True:
         if not queue.empty():
