@@ -1,4 +1,7 @@
 import os
+import threading
+
+import time
 from threading import Thread
 from queue import Queue
 import mido
@@ -6,7 +9,7 @@ import yaml
 import gui
 from createConfig import createConfig
 
-global outputLaunchaPad, inputLaunchPad, outputToSoftware, inputFromSoftware, faders, flashButton, notes, percentage, flash, switchOn, savePercentage, faderColour, queue
+global outputLaunchaPad, inputLaunchPad, outputToSoftware, inputFromSoftware, faders, flashButton, notes, percentage, flash, switchOn, savePercentage, faderColour, fading, click, queue
 
 
 def checkStart():
@@ -79,30 +82,63 @@ def updateColumWithPercentage(percentage, flash, colum):
         flashButton[colum][0] = 45
 
 
-def sendMidiToSoftware(percentage, colum):
-    match percentage[colum]:
-        case 0:
-            outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=0))
-        case 25:
-            outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=16))
-        case 50:
-            outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=32))
-        case 75:
-            outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=48))
-        case 100:
-            outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=64))
+def sendMidiToSoftware(percentage, percentageOld, colum):
+    if fading[colum]:
+        if percentageOld < percentage[colum]:
+            print("count up")
+            thread = Thread(target=multithreadingForFadeTimeUP, args=(percentage, percentageOld, colum,), daemon=True)
+            thread.start()
+
+        if percentageOld > percentage[colum]:
+            print("count down")
+            thread = Thread(target=multithreadingForFadeTimeDOWN, args=(percentage, percentageOld, colum,), daemon=True)
+            thread.start()
+    else:
+        match percentage[colum]:
+            case 0:
+                outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=0))
+            case 25:
+                outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=16))
+            case 50:
+                outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=32))
+            case 75:
+                outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=48))
+            case 100:
+                outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=64))
+
+
+def multithreadingForFadeTimeUP(percentage, percentageOld, colum):
+    x = percentageOld
+    while x < percentage[colum]:
+        x = x + 1
+        time.sleep(0.05)
+        outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=int(x / 100 * 64)))
+        print(colum, "* p", x, "m:", int(x / 100 * 64))
+
+
+def multithreadingForFadeTimeDOWN(percentage, percentageOld, colum):
+    x = percentageOld
+    while x > percentage[colum]:
+        x = x - 1
+        time.sleep(0.05)
+        outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=int(x / 100 * 64)))
+        print(colum, "* p", x, "m:", int(x / 100 * 64))
 
 
 def getButtons(message, y):
     if message == mido.Message("note_on", note=notes[y][1], velocity=127, channel=0):  # flash
         savePercentage[y] = percentage[y]
-        percentage[y] = 100
         flash[y] = True
+        outputToSoftware.send(mido.Message('control_change', channel=y, control=1, value=64))
 
-    if message == mido.Message("note_on", note=notes[y][1], velocity=0, channel=0):  # flash
+    if message == mido.Message("note_on", note=notes[y][1], velocity=0, channel=0):  # flash off
         if flash[y]:
             percentage[y] = savePercentage[y]
             flash[y] = False
+            outputToSoftware.send(
+                mido.Message('control_change', channel=y, control=1, value=int(savePercentage[y] / 100 * 64)))
+
+    percentageOld = percentage[y]
 
     if message == mido.Message("note_on", note=notes[y][2], velocity=127, channel=0):
         percentage[y] = 0
@@ -115,13 +151,17 @@ def getButtons(message, y):
     if message == mido.Message("note_on", note=notes[y][6], velocity=127, channel=0):
         percentage[y] = 100
 
+    print(percentageOld, "pold1")
+    print(percentage[y], "pnew1")
+
     updateColumWithPercentage(percentage, flash, y)
     updateLightingInColum(y)
-    sendMidiToSoftware(percentage, y)
+    sendMidiToSoftware(percentage, percentageOld, y)
 
 
 def loop(message):
-    # print(message)
+    print(message)
+
     # side Buttons
     control = [19, 29, 39, 49, 59, 69, 79, 89]
     for x in range(len(control)):
@@ -145,6 +185,24 @@ def loop(message):
             outputToSoftware.send(mido.Message('note_off', note=x + 1, velocity=127, channel=0))
             outputLaunchaPad.send(mido.Message('note_on', note=bottomButtons[x], velocity=1, channel=0))
             return
+
+    # flashing buttons
+    fbutton = [91, 92, 93, 94, 95, 96, 97, 98]
+
+    for x in range(len(fbutton)):
+        if message == mido.Message("control_change", channel=0, control=fbutton[x], value=127):
+            click[x] = 1
+            return
+        if message == mido.Message("control_change", channel=0, control=fbutton[x], value=0):
+            if click[x] == 1:
+                outputLaunchaPad.send(mido.Message('control_change', channel=2, control=fbutton[x], value=6))
+                if fading[x]:
+                    fading[x] = False
+                    outputLaunchaPad.send(mido.Message('control_change', channel=0, control=fbutton[x], value=1))
+                else:
+                    fading[x] = True
+                return
+    print(fading)
 
     # check wich channel is pressed:
     intensity = ["not used", "flash", "0", "25", "50", "75", "100"]
@@ -196,7 +254,7 @@ def startMidi(q):
         configFile = yaml.safe_load(file)
 
     print("starting Midi")
-    global outputLaunchaPad, inputLaunchPad, outputToSoftware, inputFromSoftware, faders, flashButton, notes, percentage, flash, switchOn, savePercentage
+    global outputLaunchaPad, inputLaunchPad, outputToSoftware, inputFromSoftware, faders, flashButton, notes, percentage, flash, switchOn, savePercentage, fading, click
 
     outputLaunchaPad = mido.open_output(configFile['outputLaunchaPad'])
     inputLaunchPad = mido.open_input(configFile['inputLaunchPad'])
@@ -215,6 +273,8 @@ def startMidi(q):
     flash = [False, False, False, False, False, False, False, False]
     switchOn = [False, False, False, False, False, False, False, False]
     savePercentage = [0, 0, 0, 0, 0, 0, 0, 0]
+    fading = [False, False, False, False, False, False, False, False]
+    click = [0, 0, 0, 0, 0, 0, 0, 0]
 
     updateFaderColour()
 

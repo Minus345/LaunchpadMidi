@@ -128,12 +128,13 @@ def updateColours():
     DisplayHeight8.config(text=configFile['rightbuttons']['h'])
     root.update_idletasks()
 
+
 def start():
     print("Starting")
     global q
     q = Queue()
     main.checkStart()
-    thread1 = Thread(target=main.startMidi, daemon=True, args=(q, ))
+    thread1 = Thread(target=main.startMidi, daemon=True, args=(q,))
     thread1.start()
     print("starting gui")
     init()
