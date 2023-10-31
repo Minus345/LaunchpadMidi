@@ -1,15 +1,12 @@
 from queue import Queue
 
-import time
 import tkinter as tk
 import tkinter.font as tkFont
 from threading import Thread
 from tkinter import *
-import pandas as pd
 import yaml
-
+import sys
 import main
-from createConfig import createConfig
 
 global root, text, canvas, DisplayHeight1, DisplayHeight2, DisplayHeight3, DisplayHeight4, DisplayHeight5, DisplayHeight6, DisplayHeight7, DisplayHeight8, q
 
@@ -109,13 +106,7 @@ def updateColours():
     with open('config.yml', 'r') as file:
         configFile = yaml.safe_load(file)
     alpha = ["a", "b", "c", "d", "e", "f", "g", "h"]
-    df = pd.read_excel("data/tk-colours.xlsx")  # Path of the file.
-    colours = df['Color Name'].values.tolist()
-    # print(colours)
-    for i in range(8):
-        if configFile['fadercolour'][alpha[i]] not in colours:
-            print("wrong colour in row ", alpha.__getitem__(i))
-
+    # TODO: Check for supported colours
     for i in range(8):
         canvas.itemconfigure(text[i], text=configFile['fader'][alpha[i]], fill=configFile['fadercolour'][alpha[i]])
     DisplayHeight1.config(text=configFile['rightbuttons']['a'])
@@ -130,15 +121,26 @@ def updateColours():
 
 
 def start():
+    print('Number of arguments:', len(sys.argv), 'arguments.')
+    print('Argument List:', str(sys.argv))
+    noGui = False
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "nogui":
+            print("no gui")
+            noGui = True
+
     print("Starting")
     global q
     q = Queue()
     main.checkStart()
-    thread1 = Thread(target=main.startMidi, daemon=True, args=(q,))
-    thread1.start()
-    print("starting gui")
-    init()
-    root.mainloop()
+    if not noGui:
+        thread1 = Thread(target=main.startMidi, daemon=True, args=(q,))
+        thread1.start()
+        print("starting gui")
+        init()
+        root.mainloop()
+    else:
+        main.startMidi(q)
 
 
 if __name__ == "__main__":

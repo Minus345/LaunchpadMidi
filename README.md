@@ -17,6 +17,7 @@ Features:
 6. Write the correct input and output midi ports in the config file
 7. Set the launchpad in Programmer mode
 8. Set the right midi port in the config file (a list of available ports is printed in the terminal at the start of the application)
+9. use the "nogui" start parameter to disable the gui
 
 ## Launchpad in Programmer Mode:
 
@@ -41,3 +42,6 @@ Features:
     - A (right first from the top) -> Channel 1 Value 17
     - B (under A) -> Channel 1 Value 16
     - ...
+
+## create exe form source
+`pyinstaller .\main.py --hidden-import "mido.backends.rtmidi"  `

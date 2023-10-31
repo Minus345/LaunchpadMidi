@@ -88,7 +88,7 @@ def multithreadingForFadeTimeUP(percentage, percentageOld, colum, flash):
         time.sleep(0.05)
         if not flash[colum]:
             outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=int(x / 100 * 64)))
-        print(colum, "* p", x, "pOLD: ", percentageOld, "pTarget: ", percentage[colum], "PTargetNEW: ", y)
+        # print(colum, "* p", x, "pOLD: ", percentageOld, "pTarget: ", percentage[colum], "PTargetNEW: ", y)
 
 
 def multithreadingForFadeTimeDOWN(percentage, percentageOld, colum, flash):
@@ -99,7 +99,7 @@ def multithreadingForFadeTimeDOWN(percentage, percentageOld, colum, flash):
         time.sleep(0.05)
         if not flash[colum]:
             outputToSoftware.send(mido.Message('control_change', channel=colum, control=1, value=int(x / 100 * 64)))
-        print(colum, "* p", x, "pOLD: ", percentageOld, "pTarget: ", percentage[colum], "PTargetNEW: ", y)
+        # print(colum, "* p", x, "pOLD: ", percentageOld, "pTarget: ", percentage[colum], "PTargetNEW: ", y)
 
 
 def getButtons(message, y, percentage):
@@ -129,18 +129,18 @@ def getButtons(message, y, percentage):
     if message == mido.Message("note_on", note=notes[y][6], velocity=127, channel=0):
         percentage[y] = 100
 
-    print(percentageOld, "pold1")
-    print(percentage[y], "pnew1")
+    # print(percentageOld, "pold1")
+    # print(percentage[y], "pnew1")
 
     if fading[y]:
         if percentageOld < percentage[y]:
-            print("count up")
+            # print("count up")
             thread = Thread(target=multithreadingForFadeTimeUP, args=(percentage, percentageOld, y, flash,),
                             daemon=True)
             thread.start()
 
         if percentageOld > percentage[y]:
-            print("count down")
+            # print("count down")
             thread = Thread(target=multithreadingForFadeTimeDOWN, args=(percentage, percentageOld, y, flash,),
                             daemon=True)
             thread.start()
@@ -161,7 +161,7 @@ def getButtons(message, y, percentage):
 
 
 def loop(message, percentage):
-    print(message)
+    # print(message)
     control = [19, 29, 39, 49, 59, 69, 79, 89]
     bottomButtons = [11, 12, 13, 14, 15, 16, 17, 18]
     fadingButton = [91, 92, 93, 94, 95, 96, 97, 98]
@@ -197,7 +197,7 @@ def loop(message, percentage):
                 return
 
     # check wich channel is pressed:
-    #intensity = ["not used", "flash", "0", "25", "50", "75", "100"]
+    # intensity = ["not used", "flash", "0", "25", "50", "75", "100"]
     for x in range(7):  # x is colum  y is row y: 0: toggle 1: flash 2: not used 3:0% 4:25% 5:50% 6:75% 7:100%
         for y in range(8):
             if message == mido.Message("note_on", note=notes[y][x], velocity=127, channel=0) or message == mido.Message(
@@ -294,3 +294,4 @@ def startMidi(q):
 
 if __name__ == '__main__':
     gui.start()
+    #TODO: catch STRG-C in nogui mode
